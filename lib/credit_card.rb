@@ -1,23 +1,25 @@
 class CreditCard
-  attr_reader :number
-  attr_reader :sum
+  def initialize(number) = @number = number
 
-  def initialize number
-    @number = number
-    @sum = 0
+  def valid? = (checksum % 10).zero?
 
-    numbers = @number.to_s.split('').reverse.map(&:to_i)
-    numbers.each_with_index do |num, i|
-      if (i % 2).zero?
-        @sum += num
-      else
-        dbl = (num * 2).to_s.split('').map!(&:to_i)
-        @sum += dbl.inject(0) {|a, b| a + b }
-      end
+  private
+
+  def checksum
+    digits = @number.to_s.split('').reverse.map(&:to_i)
+
+    digits.each_with_index.reduce(0) do |memo, digit_and_index|
+      memo + next_value(*digit_and_index)
     end
   end
 
-  def valid?
-    return (sum % 10).zero?
+  def next_value(number, index)
+    index.even? ? number : double_and_sum_digits(number)
+  end
+
+  def double_and_sum_digits(number)
+    double = number * 2
+    digits = double.to_s.split('').map(&:to_i)
+    digits.reduce(&:+)
   end
 end
